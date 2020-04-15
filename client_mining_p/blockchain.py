@@ -125,6 +125,7 @@ def mine():
 
     # Check that 'proof', and 'id' are present
     proof = None
+    id = None
     if 'proof' in data AND 'id' in data:
         proof = data['proof']
         id = data['id']
@@ -134,19 +135,29 @@ def mine():
             'errorMsg': 'Missing critial information. Cannot process request.'
         }
         return jsonify(response), 400
-
-
-    # Run the proof of work algorithm to get the next proof
-    proof = blockchain.proof_of_work(blockchain.last_block)
     
-    # Forge the new Block by adding it to the chain with the proof
-    new_block = blockchain.new_block(proof)
-    response = {
-        'block': new_block
-    }
+    # A valid proof should fail for all senders except the first.
+    if 'proof' in data:
+        # If proof passes
+    
+        # Forge the new Block by adding it to the chain with the proof
+        new_block = blockchain.new_block(proof)
 
-    return jsonify(response), 200
+        # Return a message indicating success. 
+        response = {
+            'block': new_block
+        }
+        return jsonify(response), 200
 
+    else:
+        # If proof fails
+
+        # Return a message indicating failure.
+        response = {
+            'errorMsg': 'Proof Failed. Cannot process request.'
+        }
+        return jsonify(response), 400       
+    
 
 @app.route('/chain', methods=['GET'])
 def full_chain():
