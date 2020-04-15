@@ -120,10 +120,24 @@ def hello_world():
 
 @app.route('/mine', methods=['POST'])
 def mine():
+    # Use `data = request.get_json()` to pull the data out of the POST
+    data = request.get_json()
+
+    # Check that 'proof', and 'id' are present
+    proof = None
+    if 'proof' in data AND 'id' in data:
+        proof = data['proof']
+        id = data['id']
+    else:
+        # return a 400 error using `jsonify(response)` with a 'message'
+        response = {
+            'errorMsg': 'Missing critial information. Cannot process request.'
+        }
+        return jsonify(response), 400
+
+
     # Run the proof of work algorithm to get the next proof
-    # print("We shall now mine a block!")
     proof = blockchain.proof_of_work(blockchain.last_block)
-    # print(f'After a long process, we got a value {proof}')
     
     # Forge the new Block by adding it to the chain with the proof
     new_block = blockchain.new_block(proof)
