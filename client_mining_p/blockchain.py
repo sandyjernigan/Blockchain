@@ -118,7 +118,7 @@ def hello_world():
     }
     return jsonify(response), 200
 
-@app.route('/mine', methods=['GET'])
+@app.route('/mine', methods=['POST'])
 def mine():
     # Run the proof of work algorithm to get the next proof
     # print("We shall now mine a block!")
