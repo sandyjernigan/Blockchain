@@ -92,14 +92,13 @@ class Blockchain(object):
         correct number of leading zeroes.
         :return: True if the resulting hash is a valid proof, False otherwise
         """
-        # TODO
-        # print(f"i will now check if {proof} is valid")
         guess = block_string + str(proof) 
         guess = guess.encode()
 
         hash_value = hashlib.sha256(guess).hexdigest()
 
-        return hash_value[:3] == '000'
+        ''' Change `valid_proof` to require *6* leading zeroes. '''
+        return hash_value[:3] == '000000'
 
 
 # Instantiate our Node
