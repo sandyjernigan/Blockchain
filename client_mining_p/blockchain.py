@@ -126,6 +126,7 @@ def mine():
     # Check that 'proof', and 'id' are present
     proof = None
     id = None
+
     if 'proof' in data AND 'id' in data:
         proof = data['proof']
         id = data['id']
@@ -136,9 +137,12 @@ def mine():
         }
         return jsonify(response), 400
     
+    # Get last block
+    last_block = blockchain.last_block
+    block_string = json.dumps(last_block, sort_keys=True)
+    
     # A valid proof should fail for all senders except the first.
-    if 'proof' in data:
-        # If proof passes
+    if blockchain.valid_proof(block_string, proof)
     
         # Forge the new Block by adding it to the chain with the proof
         new_block = blockchain.new_block(proof)
@@ -149,14 +153,12 @@ def mine():
         }
         return jsonify(response), 200
 
-    else:
-        # If proof fails
-
+    else: # If proof fails
         # Return a message indicating failure.
         response = {
             'errorMsg': 'Proof Failed. Cannot process request.'
         }
-        return jsonify(response), 400       
+        return jsonify(response), 400    
     
 
 @app.route('/chain', methods=['GET'])

@@ -43,6 +43,8 @@ if __name__ == '__main__':
     else:
         node = "http://localhost:5000"
 
+    coins_mined = 0
+
     # Load ID
     f = open("my_id.txt", "r")
     id = f.read()
@@ -61,8 +63,8 @@ if __name__ == '__main__':
             print(r)
             break
 
-        # TODO: Get the block from `data` and use it to look for a new proof
-        # new_proof = ???
+        # Get the block from `data` and use it to look for a new proof
+        new_proof = proof_of_work(data['last_block'])
 
         # When found, POST it to the server {"proof": new_proof, "id": id}
         post_data = {"proof": new_proof, "id": id}
@@ -70,7 +72,12 @@ if __name__ == '__main__':
         r = requests.post(url=node + "/mine", json=post_data)
         data = r.json()
 
-        # TODO: If the server responds with a 'message' 'New Block Forged'
+        # If the server responds with a 'message' 'New Block Forged'
         # add 1 to the number of coins mined and print it.  Otherwise,
         # print the message from the server.
-        pass
+
+        if 'block' is in data:
+            coins_mined += 1
+            print(f"Total coins mined: {coins_mined}")
+        else:
+            print(data['message'])
