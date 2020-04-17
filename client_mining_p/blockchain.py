@@ -14,6 +14,23 @@ class Blockchain(object):
         # Create the genesis block
         self.new_block(previous_hash=1, proof=100)
 
+    def new_transaction(self, sender, recipient, amount):
+        """
+        Creates a new transaction to go into the next mined Block
+
+        :param sender: <str> Address of the Recipient
+        :param recipient: <str> Address of the Recipient
+        :param amount: <int> Amount
+        :return: <int> The index of the BLock that will hold this transaction
+        """
+        self.current_transactions.append({
+            'sender': sender,
+            'recipient': recipient,
+            'amount': amount
+        })
+
+        return self.last_block['index'] + 1
+
     def new_block(self, proof, previous_hash=None):
         """
         Create a new Block in the Blockchain
@@ -60,11 +77,11 @@ class Blockchain(object):
         # We must make sure that the Dictionary is Ordered,
         # or we'll have inconsistent hashes
 
-        # TODO: Create the block_string
+        # Create the block_string
         string_object = json.dumps(block, sort_keys=True)
         block_string = string_object.encode()
 
-        # TODO: Hash this string using sha256
+        # Hash this string using sha256
         raw_hash = hashlib.sha256(block_string)
 
         # By itself, the sha256 function returns the hash in a raw string
@@ -73,7 +90,8 @@ class Blockchain(object):
         # hash to a string of hexadecimal characters, which is
         # easier to work with and understand
         hash_string = raw_hash.hexdigest()
-        # TODO: Return the hashed block string in hexadecimal format
+
+        # Return the hashed block string in hexadecimal format
         return hash_string
 
     @property
@@ -97,8 +115,8 @@ class Blockchain(object):
 
         hash_value = hashlib.sha256(guess).hexdigest()
 
-        ''' Change `valid_proof` to require *6* leading zeroes. '''
-        return hash_value[:3] == '000000'
+        ''' Change `valid_proof` to require *6* leading zeroes. Put back at 3 zeroes for now.'''
+        return hash_value[:3] == '000'
 
 
 # Instantiate our Node
@@ -142,23 +160,25 @@ def mine():
     block_string = json.dumps(last_block, sort_keys=True)
     
     # A valid proof should fail for all senders except the first.
-    if blockchain.valid_proof(block_string, proof)
-    
-        # Forge the new Block by adding it to the chain with the proof
-        new_block = blockchain.new_block(proof)
 
-        # Return a message indicating success. 
+    if blockchain.valid_proof(block_string, proof):
+        # lets mine a new block, and return a success!    
+        blockchain.new_transaction(
+            sender="0",
+            recipient=data['id'],
+            amount=1
+        )
+        new_block = blockchain.new_block(proof)
         response = {
             'block': new_block
         }
         return jsonify(response), 200
-
-    else: # If proof fails
-        # Return a message indicating failure.
+    else:
+        # respond with an error message
         response = {
-            'errorMsg': 'Proof Failed. Cannot process request.'
+            'message': 'Proof is invalid'
         }
-        return jsonify(response), 400    
+        return jsonify(response), 400 
     
 
 @app.route('/chain', methods=['GET'])
@@ -177,6 +197,25 @@ def last_block():
         'last_block': blockchain.last_block
     }
     return jsonify(response), 200
+    
+
+@app.route('/transactions/new', methods=['POST'])
+def new_transaction():
+    data = request.get_json()
+
+    # check that required fields are present
+    if 'recipient' not in data or 'amount' not in data or 'sender' not in data:
+        response = {'message' : 'Error: missing values'}
+        return jsonify(response), 400
+    
+    # in the real world, we would probably want to verify that this transaction is legit
+    # for now, we can allow anyone to add whatever they want
+
+    # create the new transaction
+    index = blockchain.new_transaction(data['sender'], data['recipient'], data['amount'])
+    response = {'message': f'Transaction will be posted in block with index {index}'}
+    return jsonify(response), 200
+    
 
 # Run the program on port 5000
 if __name__ == '__main__':
