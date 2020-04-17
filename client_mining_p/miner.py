@@ -81,7 +81,7 @@ if __name__ == '__main__':
         # add 1 to the number of coins mined and print it.  Otherwise,
         # print the message from the server.
 
-        if 'block' is in data:
+        if 'block' in data:
             coins_mined += 1
             print(f"Total coins mined: {coins_mined}")
         else:

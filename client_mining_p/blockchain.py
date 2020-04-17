@@ -145,7 +145,7 @@ def mine():
     proof = None
     id = None
 
-    if 'proof' in data AND 'id' in data:
+    if 'proof' in data and 'id' in data:
         proof = data['proof']
         id = data['id']
     else:
